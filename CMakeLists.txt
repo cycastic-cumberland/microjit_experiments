@@ -20,13 +20,15 @@ include_directories(${GTEST_SOURCE_DIR}/googlemock/include)
 include_directories(${ASMJIT_SOURCE_DIR}/src)
 include_directories(${MICROJIT_SOURCE_DIR}/src)
 
-STRING(REPLACE "-O2" "-Od" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+#STRING(REPLACE "-O2" "-Od" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
 
 add_executable(microjit_experiment main.cpp
         general_experiments.h
         tests/general_functionalities.cpp
         tests/test_thread_pool.cpp
-        tests/conversion_test.gen.cpp)
+        tests/conversion_test.gen.cpp
+        tests/combined_test.cpp
+)
 target_link_libraries(microjit_experiment asmjit microjit gtest gtest_main)
 #target_link_libraries(microjit_experiment -L${CMAKE_CURRENT_SOURCE_DIR}/../cmake-build-debug -lmicrojit)
 #-L${CMAKE_CURRENT_SOURCE_DIR}/../cmake-build-debug/asmjit -lasmjit

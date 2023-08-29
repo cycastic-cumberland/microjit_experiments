@@ -163,3 +163,45 @@ TEST_F(GeneralTestFixture, OrchestratorGeneralFunctionalityTest) {
     auto pre_teardown_count = GeneralTestFixture::TestStruct::count;
     EXPECT_EQ(post_setup_count, pre_teardown_count);
 }
+
+static void jit_call_test(){
+    using namespace microjit;
+    static const std::function<GeneralTestFixture::TestStruct(GeneralTestFixture::TestStruct)> model1{};
+    auto orchestrator = Ref<MicroJITOrchestrator>::make_ref();
+    auto args_vec = Ref<ArgumentsVector>::make_ref();
+    std::vector<Ref<Value>> vec_values = { ArgumentValue::create(0).c_style_cast<Value>() };
+    args_vec->values.swap(vec_values);
+    auto func1 = orchestrator->create_instance_from_model(model1);
+    auto func2 = orchestrator->create_instance_from_model(model1);
+    auto func3 = orchestrator->create_instance_from_model(model1);
+    auto f3_main_scope = func3->get_function()->get_main_scope();
+    auto f3_var1 = f3_main_scope->create_variable<GeneralTestFixture::TestStruct>();
+    auto f3_var2 = f3_main_scope->create_variable<GeneralTestFixture::TestStruct>();
+    f3_main_scope->default_construct<GeneralTestFixture::TestStruct>(f3_var2);
+    f3_main_scope->construct_from_argument(f3_var1, 0);
+    f3_main_scope->function_return(f3_var1);
+    auto f2_main_scope = func2->get_function()->get_main_scope();
+    auto f2_sub_scope = f2_main_scope->create_scope();
+    auto f2_var2 = f2_sub_scope->create_variable<GeneralTestFixture::TestStruct>();
+    f2_sub_scope->default_construct<GeneralTestFixture::TestStruct>(f2_var2);
+    auto f2_var1 = f2_main_scope->create_variable<GeneralTestFixture::TestStruct>();
+    f2_main_scope->invoke_jit(func3->get_function(), args_vec, f2_var1);
+    f2_main_scope->function_return(f2_var1);
+    auto f1_main_scope = func1->get_function()->get_main_scope();
+    auto f1_var1 = f1_main_scope->create_variable<GeneralTestFixture::TestStruct>();
+    f1_main_scope->invoke_jit(func2->get_function(), args_vec,
+                              f1_var1);
+    f1_main_scope->function_return(f1_var1);
+    auto s2 = GeneralTestFixture::TestStruct{620.213, 23.13};
+    auto re = func1(s2);
+    EXPECT_EQ(re, s2);
+}
+
+TEST_F(GeneralTestFixture, JitCallTest){
+    auto post_setup_count = GeneralTestFixture::TestStruct::count;
+//    PostSetUp();
+    jit_call_test();
+//    PreTearDown();
+    auto pre_teardown_count = GeneralTestFixture::TestStruct::count;
+    EXPECT_EQ(post_setup_count, pre_teardown_count);
+}

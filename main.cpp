@@ -8,7 +8,7 @@
 int TestStruct::count = 0;
 
 int main(int argc, char** argv){
-//    test_core_nodes_3();
+//    fibonacci_test();
 //    return 0;
     ::testing::InitGoogleTest(&argc, argv);
     auto result = RUN_ALL_TESTS();

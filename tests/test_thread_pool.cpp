@@ -62,7 +62,7 @@ static void batch_copy_job(uint8_t p_thread_no, uint8_t p_thread_count, void* p_
         memcpy((void*)((size_t)p_dst + offset), (const void*)((size_t)p_src + offset), partition_size);
 }
 static void batch_copy(ThreadPool *p_pool, ThreadPool::Priority p_priority, uint8_t p_thread_count, void* p_dst, const void* p_src, size_t p_size){
-    static constexpr auto wait_time = 10;
+    constexpr auto wait_time = 10;
     if (p_thread_count == 0) p_thread_count = p_pool->get_thread_count();
     auto promise = p_pool->queue_group_task(p_priority, p_thread_count, batch_copy_job,
                                             p_dst, p_src, p_size);
