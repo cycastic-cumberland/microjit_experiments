@@ -14,6 +14,7 @@
 
 #include <asmjit/asmjit.h>
 #include "tests/combined_test_builder.h"
+#include "microjit/trampoline.h"
 
 #include <iostream>
 
@@ -176,7 +177,7 @@ void test_jit_call2(){
     std::cout << "After full clean up: " << TestStruct::count << "\n";
 }
 template <typename F, typename ... Args>
-_ALWAYS_INLINE_ uint64_t time_function(F&& f, Args&&...args)
+static _ALWAYS_INLINE_ uint64_t time_function(F&& f, Args&&...args)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
     std::forward<F>(f)(std::forward<Args>(args)...);
@@ -286,6 +287,51 @@ void fibonacci_test(){
     std::cout << "JIT 3: " << jit3 << " ns\n";
 
     wrapped.detach();
+}
+
+
+void print_1(int a){
+    std::cout << a << "\n";
+}
+void print_2(int a, int b){
+    std::cout << a << " " << b << "\n";
+}
+int fetch(int a, int b){
+    return a - b;
+}
+
+void native_invocation_test(){
+    auto stack = new microjit::VirtualStack(1024, 0);
+    auto** vrsp_ptr = stack->rsp();
+
+    {
+        auto test1 = microjit::BaseTrampoline::create_native_function(print_1);
+        (*vrsp_ptr) = (microjit::VirtualStack::StackPtr)((size_t)*vrsp_ptr - 4);
+        auto num1 = (int*)(*vrsp_ptr);
+        *num1 = 12;
+        test1->call(stack);
+    }
+    {
+        auto test2 = microjit::BaseTrampoline::create_native_function(print_2);
+        (*vrsp_ptr) = (microjit::VirtualStack::StackPtr)((size_t)*vrsp_ptr - 8);
+        auto num1 = (int*)((size_t)*vrsp_ptr);
+        auto num2 = (int*)((size_t)*vrsp_ptr + 4);
+        *num1 = 12;
+        *num2 = 164;
+        test2->call(stack);
+    }
+    {
+        auto test2 = microjit::BaseTrampoline::create_native_function(fetch);
+        (*vrsp_ptr) = (microjit::VirtualStack::StackPtr)((size_t)*vrsp_ptr - 12);
+        auto ret  = (int*)((size_t)*vrsp_ptr + 0);
+        auto num1 = (int*)((size_t)*vrsp_ptr + 4);
+        auto num2 = (int*)((size_t)*vrsp_ptr + 8);
+        *num1 = 12;
+        *num2 = 164;
+        test2->call(stack);
+        std::cout << *ret << "\n";
+    }
+    delete stack;
 }
 
 void test_branching(){
