@@ -13,6 +13,7 @@
 #include <microjit/decaying_weighted_cache.h>
 
 #include <asmjit/asmjit.h>
+#include "tests/combined_test_builder.h"
 
 #include <iostream>
 
@@ -265,15 +266,17 @@ int fib(int n){
 void fibonacci_test(){
     using namespace microjit;
     auto orchestrator = Ref<MicroJITOrchestrator>::make_ref();
-    auto instance = create_fibonacci(orchestrator);
+    auto instance = create_recursive_fibonacci(orchestrator);
+    instance->recompile();
     microjit::OrchestratorComponent<MicroJITCompiler_x86_64>::InstanceWrapper<int, int> wrapped(instance);
-    static constexpr auto num = 3;
-    auto native1    = time_function(fib, 12);
-    auto native2    = time_function(fib, 12);
-    auto native3    = time_function(fib, 12);
-    auto jit1       = time_function(wrapped, 12);
-    auto jit2       = time_function(wrapped, 12);
-    auto jit3       = time_function(wrapped, 12);
+    static constexpr auto num1 = 6;
+
+    auto native1    = time_function(dp_fibonacci, num1);
+    auto native2    = time_function(dp_fibonacci, num1);
+    auto native3    = time_function(dp_fibonacci, num1);
+    auto jit1       = time_function(wrapped, num1);
+    auto jit2       = time_function(wrapped, num1);
+    auto jit3       = time_function(wrapped, num1);
     std::cout << "Native 1: " << native1 << " ns\n";
     std::cout << "Native 2: " << native2 << " ns\n";
     std::cout << "Native 3: " << native3 << " ns\n";

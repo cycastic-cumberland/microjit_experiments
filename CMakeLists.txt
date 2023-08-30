@@ -28,6 +28,7 @@ add_executable(microjit_experiment main.cpp
         tests/test_thread_pool.cpp
         tests/conversion_test.gen.cpp
         tests/combined_test.cpp
+        tests/combined_test_builder.h
 )
 target_link_libraries(microjit_experiment asmjit microjit gtest gtest_main)
 #target_link_libraries(microjit_experiment -L${CMAKE_CURRENT_SOURCE_DIR}/../cmake-build-debug -lmicrojit)
