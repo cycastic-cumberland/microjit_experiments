@@ -79,7 +79,7 @@ protected:
     scope1->default_construct<T##m_count>(var2);                         \
     scope1->assign_from_variable<T##m_count>(var2, var1);\
     scope1->function_return(var2);      \
-    f##m_count = i##m_count->get_compiled_function(); \
+    f##m_count = i##m_count->get_compiled_function_compat(); \
 }
 #define ARG_RETURN(m_count){ \
     auto function = i##m_count->get_function(); \
@@ -89,7 +89,7 @@ protected:
     auto scope1 = main_scope->create_scope();\
     scope1->function_return(var1);              \
     auto junk = main_scope->create_variable<decltype(f##m_count)::first_argument_type>();\
-    f##m_count = i##m_count->get_compiled_function(); \
+    f##m_count = i##m_count->get_compiled_function_compat(); \
 }
         CREATE_INSTANCE(1);
         CREATE_INSTANCE(2);

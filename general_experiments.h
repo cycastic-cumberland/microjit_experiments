@@ -11,7 +11,6 @@
 #include <microjit/instructions.h>
 #include <microjit/jit_x86_64.h>
 #include <microjit/orchestrator.h>
-#include <microjit/decaying_weighted_cache.h>
 
 #include "general_functionalities.h"
 #include "microjit/trampoline.h"
@@ -345,14 +344,14 @@ void native_invocation_test(){
     auto** vrsp_ptr = stack->rsp();
 
     {
-        auto test1 = microjit::BaseTrampoline::create_native_function(print_1);
+        auto test1 = microjit::BaseTrampoline::create_native_trampoline(print_1);
         (*vrsp_ptr) = (microjit::VirtualStack::StackPtr)((size_t)*vrsp_ptr - 4);
         auto num1 = (int*)(*vrsp_ptr);
         *num1 = 12;
         test1->call(stack);
     }
     {
-        auto test2 = microjit::BaseTrampoline::create_native_function(print_2);
+        auto test2 = microjit::BaseTrampoline::create_native_trampoline(print_2);
         (*vrsp_ptr) = (microjit::VirtualStack::StackPtr)((size_t)*vrsp_ptr - 8);
         auto num1 = (int*)((size_t)*vrsp_ptr);
         auto num2 = (int*)((size_t)*vrsp_ptr + 4);
@@ -361,7 +360,7 @@ void native_invocation_test(){
         test2->call(stack);
     }
     {
-        auto test2 = microjit::BaseTrampoline::create_native_function(fetch);
+        auto test2 = microjit::BaseTrampoline::create_native_trampoline(fetch);
         (*vrsp_ptr) = (microjit::VirtualStack::StackPtr)((size_t)*vrsp_ptr - 12);
         auto ret  = (int*)((size_t)*vrsp_ptr + 0);
         auto num1 = (int*)((size_t)*vrsp_ptr + 4);

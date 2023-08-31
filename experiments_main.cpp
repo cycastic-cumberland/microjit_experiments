@@ -7,5 +7,5 @@
 int TestStruct::count = 0;
 
 int main(){
-    recursive_fibonacci_test();
+    dp_fibonacci_test();
 }
