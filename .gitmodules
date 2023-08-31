@@ -4,3 +4,6 @@
 [submodule "microjit"]
 	path = microjit
 	url = https://github.com/cycastic-cumberland/microjit.git
+[submodule "benchmark"]
+	path = benchmark
+	url = https://github.com/google/benchmark.git

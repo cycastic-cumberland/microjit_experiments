@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 #include <microjit/orchestrator.h>
-#include "combined_test_builder.h"
+#include "../general_functionalities.h"
 
 class CombinedTestFixture : public ::testing::Test {
 protected:
@@ -12,9 +12,7 @@ protected:
 public:
     void SetUp() override {
         orchestrator = microjit::orchestrator(microjit::CompilationAgentSettings{microjit::CompilationAgentHandlerType::SINGLE_UNSAFE,
-                                                                                           6, 1.0, 0.1,
-                                                                                           50'000.0, 50'000.0,
-                                                                                           8});
+                                                                                           6, 1024 * 4, 8});
     }
     void TearDown() override {
         orchestrator = nullptr;

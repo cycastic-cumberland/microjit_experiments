@@ -2,10 +2,10 @@
 // Created by cycastic on 8/30/23.
 //
 
-#ifndef MICROJIT_EXPERIMENT_COMBINED_TEST_BUILDER_H
-#define MICROJIT_EXPERIMENT_COMBINED_TEST_BUILDER_H
+#ifndef MICROJIT_EXPERIMENT_GENERAL_FUNCTIONALITIES_H
+#define MICROJIT_EXPERIMENT_GENERAL_FUNCTIONALITIES_H
 
-#include <microjit/orchestrator.h>
+#include "microjit/orchestrator.h"
 
 static microjit::Ref<MicroJITOrchestrator::FunctionInstance<int, int>> create_recursive_fibonacci(microjit::Ref<MicroJITOrchestrator> p_orchestrator){
     auto instance = p_orchestrator->create_instance<int, int>();
@@ -139,4 +139,4 @@ static int gcd(int a, int b) {
     return a;
 }
 
-#endif //MICROJIT_EXPERIMENT_COMBINED_TEST_BUILDER_H
+#endif //MICROJIT_EXPERIMENT_GENERAL_FUNCTIONALITIES_H

@@ -6,17 +6,16 @@
 #define MICROJIT_TEST_H
 
 #include <chrono>
+#include <iostream>
 
 #include <microjit/instructions.h>
 #include <microjit/jit_x86_64.h>
 #include <microjit/orchestrator.h>
 #include <microjit/decaying_weighted_cache.h>
 
-#include <asmjit/asmjit.h>
-#include "tests/combined_test_builder.h"
+#include "general_functionalities.h"
 #include "microjit/trampoline.h"
 
-#include <iostream>
 
 void test_core_nodes_1() {
     using namespace microjit;
@@ -259,15 +258,35 @@ microjit::Ref<MicroJITOrchestrator::FunctionInstance<int, int>> create_fibonacci
     return instance.unwrap();
 }
 
-int fib(int n){
-    if (n <= 1) return n;
-    return fib(n - 1) + fib(n - 2);
-}
-
-void fibonacci_test(){
+void recursive_fibonacci_test(){
     using namespace microjit;
     auto orchestrator = Ref<MicroJITOrchestrator>::make_ref();
     auto instance = create_recursive_fibonacci(orchestrator);
+    instance->recompile();
+    microjit::OrchestratorComponent<MicroJITCompiler_x86_64>::InstanceWrapper<int, int> wrapped(instance);
+    static constexpr auto num1 = 6;
+
+    auto native1    = time_function(recursive_fibonacci, num1);
+    auto native2    = time_function(recursive_fibonacci, num1);
+    auto native3    = time_function(recursive_fibonacci, num1);
+    auto jit1       = time_function(wrapped, num1);
+    auto jit2       = time_function(wrapped, num1);
+    auto jit3       = time_function(wrapped, num1);
+    std::cout << "Native 1: " << native1 << " ns\n";
+    std::cout << "Native 2: " << native2 << " ns\n";
+    std::cout << "Native 3: " << native3 << " ns\n";
+
+    std::cout << "JIT 1: " << jit1 << " ns | Percentile: " << (double(native1) / double(jit1) * 100.0) << "%\n";
+    std::cout << "JIT 2: " << jit2 << " ns | Percentile: " << (double(native2) / double(jit2) * 100.0) << "%\n";
+    std::cout << "JIT 3: " << jit3 << " ns | Percentile: " << (double(native3) / double(jit3) * 100.0) << "%\n";
+
+    wrapped.detach();
+}
+
+void dp_fibonacci_test(){
+    using namespace microjit;
+    auto orchestrator = Ref<MicroJITOrchestrator>::make_ref();
+    auto instance = create_dp_fibonacci(orchestrator);
     instance->recompile();
     microjit::OrchestratorComponent<MicroJITCompiler_x86_64>::InstanceWrapper<int, int> wrapped(instance);
     static constexpr auto num1 = 6;
@@ -282,13 +301,34 @@ void fibonacci_test(){
     std::cout << "Native 2: " << native2 << " ns\n";
     std::cout << "Native 3: " << native3 << " ns\n";
 
-    std::cout << "JIT 1: " << jit1 << " ns\n";
-    std::cout << "JIT 2: " << jit2 << " ns\n";
-    std::cout << "JIT 3: " << jit3 << " ns\n";
+    std::cout << "JIT 1: " << jit1 << " ns | Percentile: " << (double(native1) / double(jit1) * 100.0) << "%\n";
+    std::cout << "JIT 2: " << jit2 << " ns | Percentile: " << (double(native2) / double(jit2) * 100.0) << "%\n";
+    std::cout << "JIT 3: " << jit3 << " ns | Percentile: " << (double(native3) / double(jit3) * 100.0) << "%\n";
 
     wrapped.detach();
 }
 
+void atomic_boolean_overhead_test(){
+    SafeFlag flag{};
+    bool a;
+    for (int i = 0; i < 1000; i++)
+        a = flag.is_set();
+}
+
+void boolean_overhead_test(){
+    bool flag = true;
+    bool a;
+    for (int i = 0; i < 1000; i++)
+        a = flag;
+}
+
+void boolean_read_test(){
+    auto atomic = time_function(atomic_boolean_overhead_test);
+    auto non_atomic = time_function(boolean_overhead_test);
+    std::cout << "Atomic: " << atomic << "ns\n";
+    std::cout << "Non-atomic: " << non_atomic << "ns\n";
+    std::cout << "Overhead: " << (double(atomic) / double(non_atomic) * 100.0) << "%\n";
+}
 
 void print_1(int a){
     std::cout << a << "\n";
