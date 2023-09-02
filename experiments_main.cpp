@@ -7,5 +7,6 @@
 int TestStruct::count = 0;
 
 int main(){
-    dp_fibonacci_test();
+//    test_stuff(12);
+    native_invocation_test();
 }

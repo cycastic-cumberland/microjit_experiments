@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.26)
 project(microjit_experiment)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -g")
+
+#set(CMAKE_BUILD_TYPE RelWithDebInfo)
+#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O0")
+
 
 add_definitions(-DDEBUG_ENABLED)
 add_definitions(-DASMJIT_EMBED)

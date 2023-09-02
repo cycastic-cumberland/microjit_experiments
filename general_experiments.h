@@ -282,6 +282,39 @@ void recursive_fibonacci_test(){
     wrapped.detach();
 }
 
+void print_stuff(int a, int b){
+//    fprintf(stdout, "%d %d\n", a, b);
+    std::cout << a << " " << b << "\n";
+}
+
+void native_invocation_test(){
+    using namespace microjit;
+    auto orchestrator = Ref<MicroJITOrchestrator>::make_ref();
+    auto instance = orchestrator->create_instance<void, int, int>();
+    auto main_scope = instance->get_function()->get_main_scope();
+    auto var1 = main_scope->create_variable<int>();
+    auto var2 = main_scope->create_variable<int>();
+    main_scope->construct_from_argument(var1, 0);
+    main_scope->construct_from_argument(var2, 1);
+    auto arg_vec = ArgumentsVector::create(VariableValue::create(var1), VariableValue::create(var2));
+    main_scope->invoke_native(print_stuff, arg_vec);
+    main_scope->function_return();
+
+    auto instance2 = orchestrator->create_instance<void, int, int>();
+    auto main_scope2 = instance2->get_function()->get_main_scope();
+    auto var3 = main_scope2->create_variable<int>();
+    auto var4 = main_scope2->create_variable<int>();
+    main_scope2->construct_from_argument(var3, 0);
+    main_scope2->construct_from_argument(var4, 1);
+    auto arg_vec2 = ArgumentsVector::create(VariableValue::create(var3), VariableValue::create(var4));
+    main_scope2->invoke_jit(instance->get_function(), arg_vec2);
+    main_scope2->function_return();
+
+    instance2(2, 3);
+
+    volatile auto a = 0;
+}
+
 void dp_fibonacci_test(){
     using namespace microjit;
     auto orchestrator = Ref<MicroJITOrchestrator>::make_ref();
@@ -339,39 +372,7 @@ int fetch(int a, int b){
     return a - b;
 }
 
-void native_invocation_test(){
-    auto stack = new microjit::VirtualStack(1024, 0);
-    auto** vrsp_ptr = stack->rsp();
 
-    {
-        auto test1 = microjit::BaseTrampoline::create_native_trampoline(print_1);
-        (*vrsp_ptr) = (microjit::VirtualStack::StackPtr)((size_t)*vrsp_ptr - 4);
-        auto num1 = (int*)(*vrsp_ptr);
-        *num1 = 12;
-        test1->call(stack);
-    }
-    {
-        auto test2 = microjit::BaseTrampoline::create_native_trampoline(print_2);
-        (*vrsp_ptr) = (microjit::VirtualStack::StackPtr)((size_t)*vrsp_ptr - 8);
-        auto num1 = (int*)((size_t)*vrsp_ptr);
-        auto num2 = (int*)((size_t)*vrsp_ptr + 4);
-        *num1 = 12;
-        *num2 = 164;
-        test2->call(stack);
-    }
-    {
-        auto test2 = microjit::BaseTrampoline::create_native_trampoline(fetch);
-        (*vrsp_ptr) = (microjit::VirtualStack::StackPtr)((size_t)*vrsp_ptr - 12);
-        auto ret  = (int*)((size_t)*vrsp_ptr + 0);
-        auto num1 = (int*)((size_t)*vrsp_ptr + 4);
-        auto num2 = (int*)((size_t)*vrsp_ptr + 8);
-        *num1 = 12;
-        *num2 = 164;
-        test2->call(stack);
-        std::cout << *ret << "\n";
-    }
-    delete stack;
-}
 
 void test_branching(){
     using namespace microjit;
@@ -405,6 +406,36 @@ void test_branching(){
     std::cout << time3 << " ns\n";
     auto re = instance(12);
     std::cout << re;
+}
+
+
+void test_new_op(){
+    using namespace microjit;
+    typedef int ret_type;
+    static const std::function<ret_type(ret_type, ret_type)> model1{};
+    auto orchestrator = Ref<MicroJITOrchestrator>::make_ref();
+    auto instance1 = orchestrator->create_instance_from_model(model1);
+    auto instance2 = orchestrator->create_instance_from_model(model1);
+    auto scope1 = instance1->get_function()->get_main_scope();
+    auto scope2 = instance2->get_function()->get_main_scope();
+    auto var2_1 = scope2->create_variable<ret_type>();
+    auto var2_2 = scope2->create_variable<ret_type>();
+    scope2->construct_from_argument(var2_1, 0);
+    scope2->construct_from_argument(var2_2, 1);
+    auto expr = scope2->primitive_binary_expression_parser()->parse(AbstractOperation::BINARY_SUB,
+                                                                    var2_1->value_reference(),
+                                                                    var2_2->value_reference());
+    scope2->assign_from_primitive_atomic_expression(var2_1, expr);
+    scope2->function_return(var2_1);
+    auto var1_1 = scope1->create_variable<ret_type>();
+    auto var1_2 = scope1->create_variable<ret_type>();
+    scope1->construct_from_argument(var1_1, 0);
+    scope1->construct_from_argument(var1_2, 1);
+    auto args_vec = ArgumentsVector::create(var1_1->value_reference(), var1_2->value_reference());
+    scope1->invoke_jit(instance2->get_function(), args_vec, var1_1);
+    scope1->function_return(var1_1);
+    auto ret = instance1(12, 13);
+    std::cout << ret;
 }
 
 #endif //MICROJIT_TEST_H

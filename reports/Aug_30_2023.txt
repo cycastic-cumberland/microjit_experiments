@@ -1,0 +1,37 @@
+-------------------------------------------------------------------------
+Benchmark                               Time             CPU   Iterations
+-------------------------------------------------------------------------
+BM_NativeRecursiveFibonacci/1        3.75 ns         3.73 ns    206590556
+BM_NativeRecursiveFibonacci/8         122 ns          121 ns      5550587
+BM_NativeRecursiveFibonacci/10        297 ns          296 ns      2361473
+BM_JitRecursiveFibonacci/1            232 ns          232 ns      3022508
+BM_JitRecursiveFibonacci/8           4871 ns         4860 ns       143608
+BM_JitRecursiveFibonacci/10         12220 ns        12201 ns        56775
+BM_NativeDPFibonacci/1               4.22 ns         4.21 ns    164534086
+BM_NativeDPFibonacci/8               16.7 ns         16.7 ns     42364690
+BM_NativeDPFibonacci/64              73.7 ns         73.6 ns      9549145
+BM_NativeDPFibonacci/100              114 ns          114 ns      6506587
+BM_JitDPFibonacci/1                   233 ns          232 ns      3021528
+BM_JitDPFibonacci/8                   247 ns          246 ns      2840310
+BM_JitDPFibonacci/64                  346 ns          346 ns      2028686
+BM_JitDPFibonacci/100                 403 ns          402 ns      1745704
+BM_NativeGCD/1/100                   7.22 ns         7.21 ns     98345421
+BM_NativeGCD/8/100                   8.82 ns         8.81 ns     80525040
+BM_NativeGCD/64/100                  15.2 ns         15.2 ns     45698679
+BM_NativeGCD/512/100                 9.17 ns         9.16 ns     78855101
+BM_NativeGCD/1000/100                5.37 ns         5.36 ns    132924917
+BM_NativeGCD/1/500                   7.39 ns         7.38 ns     90066538
+BM_NativeGCD/8/500                   9.39 ns         9.38 ns     78131237
+BM_NativeGCD/64/500                  13.8 ns         13.7 ns     51682460
+BM_NativeGCD/512/500                 11.1 ns         11.1 ns     63659389
+BM_NativeGCD/1000/500                5.29 ns         5.28 ns    128987974
+BM_JitGCD/1/100                       248 ns          247 ns      2839848
+BM_JitGCD/8/100                       248 ns          248 ns      2826271
+BM_JitGCD/64/100                      280 ns          280 ns      2606427
+BM_JitGCD/512/100                     262 ns          262 ns      2606006
+BM_JitGCD/1000/100                    260 ns          260 ns      2664065
+BM_JitGCD/1/500                       248 ns          248 ns      2925813
+BM_JitGCD/8/500                       264 ns          264 ns      2766859
+BM_JitGCD/64/500                      276 ns          275 ns      2681442
+BM_JitGCD/512/500                     256 ns          255 ns      2746414
+BM_JitGCD/1000/500                    245 ns          244 ns      2808417
