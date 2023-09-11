@@ -33,10 +33,10 @@ include_directories(${MICROJIT_SOURCE_DIR}/src)
 
 add_executable(gtest_run gtest_main.cpp
         tests/general_functionalities.cpp
-        tests/test_thread_pool.cpp
         tests/conversion_test.gen.cpp
         tests/combined_test.cpp
         general_functionalities.h
+        tests/native_invocation_test.cpp
 )
 
 add_executable(gbenchmark_run gbenchmark_main.cpp

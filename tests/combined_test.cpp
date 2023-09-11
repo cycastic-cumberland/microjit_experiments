@@ -8,7 +8,7 @@
 
 class CombinedTestFixture : public ::testing::Test {
 protected:
-    microjit::Ref<MicroJITOrchestrator> orchestrator;
+    microjit::Ref<MicroJITOrchestrator> orchestrator{};
 public:
     void SetUp() override {
         orchestrator = microjit::orchestrator(microjit::CompilationAgentSettings{microjit::CompilationAgentHandlerType::SINGLE_UNSAFE,
